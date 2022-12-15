@@ -1,0 +1,99 @@
+<div class="mt-4">
+    <div class="mb-4 trash-courses">
+        <a style="display: inline-block;" class="nav-link" href="/me/mycourses">Back</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">STT</th>
+                <th scope="col">videoId</th>
+                <th scope="col">description</th>
+                <th scope="col">name</th>
+                <th scope="col">function</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each courses}}
+                <tr>
+                    <th scope="row">{{showStt @index}}</th>
+                    <td>{{this.videoId}}</td>
+                    <td>{{this.description}}</td>
+                    <td>{{this.name}}</td>
+                    <td class="btn-list-update">
+                        <a href="#" id="{{this._id}}" class="btn-restore">
+                            <button type="button" class="btn btn-primary">restore</button>
+                        </a>
+                        <a href="#" id="{{this._id}}" class="tagA-dele" data-toggle="modal" data-target="#dele-course">
+                            <button type="button" class="btn btn-secondary">delte forever</button>
+                        </a>
+                    </td>
+                </tr>
+            {{else}}
+                <tr>
+                    <td colspan="5" class="text-center">
+                        <h3>no have course</h3>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+{{!-- modal dele course --}}
+<div class="modal fade" id="dele-course" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete Course</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you delete forever course?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-dele" data-dismiss="modal">Delete forever</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{!-- form dele-course --}}
+<form id="form-dele" method="post"></form>
+{{!-- form restore-course --}}
+<form id="form-restore" method="post"></form>
+
+<script>
+    const btnDestroys = document.querySelectorAll('.btn-dele')
+    const btnRestores = document.querySelectorAll('.btn-restore')
+    const tagA = document.querySelectorAll('.tagA-dele')
+    const formDele = document.querySelector('#form-dele')
+    const formRestore = document.querySelector('#form-restore')
+    let id
+
+    const getId = function(e){
+        id = this.id;
+    }
+    const handleDelete = ()=>{
+        formDele.action = `/courses/${id}/destroy?_method=DELETE`
+        formDele.submit()
+    }
+    const handleRestore = function(e){
+        e.preventDefault();
+        const id = this.id;
+        formRestore.action = `/courses/${id}/restore?_method=PATCH`
+        formRestore.submit()
+    }
+
+    tagA.forEach(tag => {
+        tag.addEventListener('click',getId)
+    })
+    btnDestroys.forEach(btn => {
+        btn.addEventListener('click',handleDelete)
+    })
+    btnRestores.forEach(btnRestore => {
+        btnRestore.addEventListener('click',handleRestore)
+    })
+</script>

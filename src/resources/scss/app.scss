@@ -1,3 +1,30 @@
 h1{
     color: green;
 }
+
+a{
+    display: block;
+    + a {
+        margin-left: 5px;
+    }
+}
+
+.btn-list-update{
+    display: flex;
+}
+
+.form-check-label {
+    width: 100px;
+}
+
+select#inputGroupSelect02 {
+    width: 260px;
+    margin: 0 20px;
+}
+
+.sort-name {
+    display: inline-block;
+    font-size: 1.5rem;
+    margin-left: 12px;
+    /* text-align: center; */
+}

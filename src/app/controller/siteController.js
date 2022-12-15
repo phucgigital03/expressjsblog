@@ -1,20 +1,18 @@
 const Course = require('../model/Course')
+const mongooseObj = require('../../util/mongoose')
 
 class siteController{
     // [get]: /
     home(req,res){
         const getCoures = async ()=>{
             try{
-                const result = await Course.find({})
-                
-                res.json(result)
+                const courses = await Course.find({})
+                res.render('home',{ courses: mongooseObj.mutipleObj(courses) })
             }catch(error){
                 console.log(error)
-                res.status(500).send("loi")
             }
         }
         getCoures()
-        // res.render('home')
     }
 
     // [get]: /search
