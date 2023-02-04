@@ -1,0 +1,277 @@
+<div class="container">
+  <div class="row">
+    <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+        <div class="img-Products">
+            <div class="mainImg">
+                <img class="img-Pro-One" src="http://localhost:5500/img/{{oneProduct.mainProductImage}}" alt="{{oneProduct.nameProduct}}">
+            </div>
+            <div class="row extraImg justify-content-md-start">
+                <div class="col-6 wrap-img">
+                    {{#each oneProduct.productsImage}}
+                        <img class="img-Pro-Mutiple" src="http://localhost:5500/img/{{this}}" alt="{{this}}">
+                    {{else}}
+                    <p></p>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
+      <div class="content">
+        <h1 class="namePro">{{oneProduct.nameProduct}}</h1>
+        <p class="price">{{#with oneProduct.pricePro}}{{this.price}}{{/with}}</p>
+        <div class="form-check">
+            <span>size:</span>
+            <div class="wrap-link">
+                {{{renderSize oneProduct.size oneProduct.sizes}}}
+            </div>
+        </div>
+        <div class="form-check">
+            <span class="size">color:</span>
+            <div class="wrap-link">
+                {{{renderColor oneProduct.color oneProduct.colors}}}
+            </div> 
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">How many</label>
+            </div>
+            <select class="custom-select" id="inputGroupSelect01">
+                {{{renderQty oneProduct.countInstock}}}
+            </select>
+        </div>	
+        <div class="text-center">
+                {{{renderBtnAddPro oneProduct.countInstock}}}
+        </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const sizePro = $('.size-pro')
+        const colorPro = $('.color-pro')
+        const btnAddCart = $('.add-cart')
+        const selectQtyPro = $('.custom-select')
+        const wrapProduct = $('.wrap-product')
+        const btnCheckOut = $('.check-out')
+        const formCheckOut = $('#check-out-form')
+        const toastSoldOut = $('.error-slod-out')
+        const products = JSON.parse(getCookie('products'))
+        const localStore = handleLocalStorage()
+
+        function handleLocalStorage(){
+            const KEY_ARRAYPRO = 'products'
+            return {
+                setDataLocalStorage(value){
+                    localStorage.setItem(KEY_ARRAYPRO, JSON.stringify(value))
+                },
+                getDataLocalStorage(){
+                    return JSON.parse(localStorage.getItem(KEY_ARRAYPRO)) || [];
+                }
+            }
+        }
+
+        function handleCheckValidationPro(valSize,valColor){
+            if(products){
+                const proFound = products.find((product)=>{
+                   return product.size === valSize && product.color === valColor
+                })
+                const qtyPro = proFound?.countInstock
+                if(proFound &&  qtyPro >= 1){
+                    const htmlOption = [];
+                    for(let i = 1; i <= qtyPro; ++i){
+                        htmlOption.push(`<option value="${i}">${i}</option>`)
+                    }
+                    selectQtyPro.html(htmlOption.join(''))
+                    btnAddCart.text('Add to cart')
+                    btnAddCart.prop('disabled',false)
+                    btnAddCart.attr("data-target","#myModal2")
+                }else{
+                    btnAddCart.text('Out of Stock')
+                    btnAddCart.prop('disabled',true)
+                    btnAddCart.removeAttr("data-target")
+                }
+            }
+        }
+
+        sizePro.change(function(event){
+            const allSizePros = $('.size-pro')
+            const valColor = $( ".color-pro:checked" ).val()
+            const valSize = $(this).val()
+            allSizePros.each(function(){
+                const isCheck = this.value === valSize
+                if(!isCheck){
+                    $(this).removeAttr("checked")
+                }else{
+                    $(this).attr("checked",isCheck)
+                }
+            })
+            handleCheckValidationPro(valSize,valColor)
+        })
+
+        colorPro.change(function(event){
+            const allColorPros = $('.color-pro')
+            const valSize = $( ".size-pro:checked" ).val()
+            const valColor = $(this).val()
+            allColorPros.each(function(){
+                const isCheck = this.value === valColor
+                if(!isCheck){
+                    $(this).removeAttr("checked")
+                }else{
+                    $(this).attr("checked",isCheck)
+                }
+            })
+            handleCheckValidationPro(valSize,valColor)
+        })
+
+        class HandleInCart{
+            static stageCart;
+
+            handleCreOrUpPro(proFound,qtyPro){
+                let idPro;
+                HandleInCart.stageCart.forEach((pro,ind)=>{
+                    if(
+                        pro.nameProduct === proFound.nameProduct && 
+                        pro.color === proFound.color && 
+                        pro.size === proFound.size
+                    ){
+                        idPro = pro._id
+                    }
+                })
+
+                if(!idPro){
+                    if(qtyPro >= proFound.countInstock){
+                        qtyPro = proFound.countInstock;
+                    }else if(qtyPro <= 0){
+                        qtyPro = 1;
+                    }
+                    proFound.qtyCurrent = qtyPro;
+                    HandleInCart.stageCart.push(proFound)
+                }else{
+                    HandleInCart.stageCart.forEach((pro,ind)=>{
+                        if(pro._id === idPro){
+                            let qtyNew = pro.qtyCurrent + qtyPro;
+                            if(qtyNew >= pro.countInstock){
+                                qtyNew = pro.countInstock
+                            }else if(qtyNew <= 0){
+                                qtyNew = 1;
+                            }
+                            pro.qtyCurrent = qtyNew;
+                        }
+                    })
+                }
+            }
+
+            createHtmlQtyInCart(pro){
+                const htmlOptQty = [];
+                const qtyPro = pro.countInstock;
+                for(let i = 1; i <= qtyPro;++i){
+                    htmlOptQty.push(
+                    `
+                    <option value="${i}" ${i === pro.qtyCurrent ? "selected" : ""}>
+                        ${i}
+                    </option>
+                    `)
+                }
+                return htmlOptQty.join('')
+            }
+
+            renderProInCart(){
+                let htmlProInCart
+                HandleInCart.stageCart = localStore.getDataLocalStorage();
+                if(HandleInCart.stageCart.length === 0){
+                    htmlProInCart = `<tr>
+                        <td colspan="3">chua co san pham nao duoc them</td>
+                    </tr>`
+                }else{
+                    htmlProInCart = HandleInCart.stageCart.map(pro => {
+                        const htmlOptQty = this.createHtmlQtyInCart(pro)
+                            return `
+                                <tr>
+                                    <td>
+                                        <figure class="itemside align-items-center">
+                                            <div class="aside"><img src="http://localhost:5500/img/${pro.mainProductImage}" class="img-sm"></div>
+                                            <figcaption class="info"> <a href="#" class="title text-dark" data-abc="true">${pro.nameProduct}</a>
+                                                <p class="small text-muted">SIZE: ${pro.size} <br> color: ${pro.color}</p>
+                                            </figcaption>
+                                        </figure>
+                                    </td>
+                                    <td> 
+                                        <select class="form-control">
+                                            ${htmlOptQty}
+                                        </select> 
+                                    </td>
+                                    <td>
+                                        <div class="price-wrap"> <var class="price">${pro.pricePro.price}</var></div>
+                                        <button data-id="${pro._id}" class="btn btn-primary btn-sm remove-pro">remove</button>
+                                    </td>
+                                </tr>
+                            `
+                    }).join('')
+                }
+                wrapProduct.html(htmlProInCart)
+            }
+            
+            handleAddOnePro(){
+                btnAddCart.click(()=>{
+                    const valColor = $('.color-pro:checked').val()
+                    const valSize = $( ".size-pro:checked" ).val()
+                    const qtyPro = Number($('#inputGroupSelect01').val())
+                    const proFound = products.find((product)=>{
+                        return product.size === valSize && product.color === valColor
+                    })
+                    if(proFound){
+                        // check update or create
+                        this.handleCreOrUpPro(proFound,qtyPro);
+                        localStore.setDataLocalStorage(HandleInCart.stageCart)
+                        this.renderProInCart()
+                    }
+                })
+            }
+
+            handleRemoveOnePro(){
+                wrapProduct.click((event)=>{
+                    const target = $( event.target );
+                    if (target.is("BUTTON")) {
+                        const idPro = target.attr("data-id")
+                        const proUpdated = HandleInCart.stageCart.filter((pro)=>{
+                            return  pro._id !== idPro
+                        })
+                        localStore.setDataLocalStorage(proUpdated)
+                        this.renderProInCart()
+                    }
+                })
+            }
+
+            handleCheckOut(){
+                const url = `http://localhost:5500/checkout`
+                btnCheckOut.click(()=>{
+                    const switchCheckOut = async()=>{
+                        try{
+                            const { data } = await axios.post(url,{
+                                allPro: HandleInCart.stageCart
+                            })
+                            window.location = data.urlSwitch
+                        }catch(error){
+                            const htmlError = error.response?.data?.message.map((errorArray)=>{
+                                return `
+                                    <p>${errorArray?.message ? errorArray?.message : ''}</p>
+                                `
+                            }).join('')
+                            $(toastSoldOut).html(`${htmlError}`)
+                            console.log(error)
+                        }
+                    }
+                    switchCheckOut()
+                })
+            }
+        }
+        const proInCart = new HandleInCart()
+        proInCart.renderProInCart()
+        proInCart.handleAddOnePro()
+        proInCart.handleRemoveOnePro()
+        proInCart.handleCheckOut()
+    });
+</script>

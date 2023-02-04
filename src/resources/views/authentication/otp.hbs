@@ -1,0 +1,49 @@
+<div class="container-otp content-Otp">
+    <p class="error-otp" style="color: rgb(235, 84, 84)"></p>
+    <form class="form-otp">
+        <h4>Enter OTP Code</h4>
+      <div class="input-field">
+        <input type="number" name="otp-create-user[]"/>
+        <input type="number" name="otp-create-user[]"/>
+        <input type="number" name="otp-create-user[]"/>
+        <input type="number" name="otp-create-user[]"/>
+        <input type="number" name="otp-create-user[]"/>
+        <input type="number" name="otp-create-user[]"/>
+      </div>
+      <button class="btn-submit-otp">Verify OTP</button>
+    </form>
+    <div class="container signin">
+        <p>Already have an account? <a href="/authen/signIn">Sign in</a>.</p>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded',function(){
+        const btnOtp = $('.btn-submit-otp')
+        const errorOtp = $('.error-otp')
+        
+        btnOtp.click(function(event){
+            event.preventDefault();
+
+            const otps = $("input[name='otp-create-user[]']").map(function(){return $(this).val();}).get().join('');
+            const callApiVerifyOtp = async ()=>{
+                try{
+                    const { data } = await axios.post('http://localhost:5500/apiUser/verifyOtp',{
+                        otp: otps
+                    })
+                    console.log(data)
+                    const message = data?.message
+                    const htmlError = `<span>${message}</span>`
+                    errorOtp.html(htmlError);
+                    $('.form-otp').hide()
+                }catch(err){
+                    console.log(err)
+                    const message = err.response.data?.message
+                    const htmlError = `<span>${message}</span>`
+                    errorOtp.html(htmlError);
+                }
+            }
+            callApiVerifyOtp()
+        })
+    })
+</script>

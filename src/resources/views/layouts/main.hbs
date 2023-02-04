@@ -6,18 +6,194 @@
         <title>Document</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet" href="/css/app.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js" integrity="sha512-8pbzenDolL1l5OPSsoURCx9TEdMFTaeFipASVrMYKhuYtly+k3tcsQYliOEKTmuB1t7yuzAiVo+yd7SJz+ijFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </head>
-
     <body>
         <div class="app">
+            
             {{> header}}
 
-            <div class="container">
+            {{!-- <div class="wrap">
+                <button style="margin: 0px 20px;" type="button" class="btn btn-primary api-secrect">click me</button>
+            </div> --}}
+
+            <div class="container-main">
                 {{{body}}}
             </div>
             
-            {{> footer}}
+            {{!-- {{> footer}} --}}
+            
         </div>
+        <script>
+            window.addEventListener('DOMContentLoaded',()=>{
+                const linkSignOut = $('#sign-out')
+                const btnSignOut = $('#btn-sign-out');
+                const btnApiSecrect = $('.api-secrect');
+
+                const createSign = (params)=>{
+                    const keySecrect = 'xxxxYYYY';
+                    const encrypted = CryptoJS.AES.encrypt(`${(Math.random()).toString()}`, keySecrect).toString();
+                    const nonce = encrypted;
+                    params.nonce = nonce;
+                    params.keySecrect = keySecrect;
+                    const sortKeys = [];
+                    for(const key in params){
+                        if(key !== 'sign'){
+                            sortKeys.push(key)
+                        }
+                    }
+                    sortKeys.sort()
+                    let paramsHolder = '';
+                    for(const key of sortKeys){
+                        paramsHolder += (key + params[key])
+                    }
+                    params.sign = md5(paramsHolder).toString()
+                    console.log(new URLSearchParams(params).toString())
+                    return `?${new URLSearchParams(params).toString()}`
+                }
+
+                btnApiSecrect.click(()=>{
+                    const callApiSecrect = async ()=>{
+                        try{
+                            const { data: { stime } } = await axios(`http://localhost:5500/apiSecurity/time`)
+                            const { data } = await axios(`http://localhost:5500/apiSecurity/v1${createSign({
+                                username: "an nguyen",
+                                stime: stime
+                            })}`)
+                            console.log( data )
+                        }catch(err){
+                            console.log(err)
+                        }
+                    }
+                    callApiSecrect()
+                })
+            
+                if(linkSignOut){
+                    const username = window.localStorage.getItem('username') || 'username'
+                    const htmlInner = `<span>${username}</span>`
+                    linkSignOut.html(htmlInner)
+                }
+
+                btnSignOut.click(function(event){
+                    event.preventDefault()
+
+                    const callApiSignOut = async ()=>{
+                        try{
+                            const { data } = await axios.post('http://localhost:5500/apiUser/signOut')
+                            window.localStorage.removeItem("token");
+                            window.location = `http://localhost:5500/products/allItem`
+                        }catch(error){
+                            console.log(error)
+                            window.localStorage.removeItem("token");
+                            window.location = `http://localhost:5500/products/allItem`
+                        }
+                    }
+                    callApiSignOut()
+                })
+
+                const requestAxiosIntercep = function(){
+                    axios.interceptors.request.use(
+                    (config)=>{
+                        const token = window.localStorage.getItem('token') || ' ';
+                        config.headers['Authorization'] = `Bearer ${token}`;
+                        return config;
+                    },
+                    (error)=>{
+                        return Promise.reject(error)
+                    })
+                }
+                requestAxiosIntercep()
+
+                const responseAxiosIntercep = function(){
+                    let isRefreshing = false;
+                    let failedQueue = [];
+
+                    const processQueue = (error, token = null) => {
+                        failedQueue.forEach(prom => {
+                            if (error) {
+                              prom.reject(error);
+                            } else {
+                              prom.resolve(token);
+                            }
+                        })
+                        failedQueue = [];
+                    }
+
+                    axios.interceptors.response.use(function (response) {
+                        return response;
+                    }, function (error) {
+                        console.log(error)
+                        let retryCustom = error?.response?.data?.retry
+                        const originalRequest = error.config;
+                        if (error?.response?.status === 401 && !originalRequest._retry && !retryCustom) {
+                            if (isRefreshing){
+                                return new Promise(function(resolve, reject) {
+                                        failedQueue.push({resolve, reject})
+                                    })
+                                    .then(token => {
+                                        originalRequest.headers['Authorization'] = 'Bearer ' + token;
+                                        return axios(originalRequest);
+                                    })
+                                    .catch(err => {
+                                        return Promise.reject(err);
+                                })
+                            }
+                            originalRequest._retry = true;
+                            isRefreshing = true;
+
+                            return new Promise(function (resolve, reject) {
+                                axios.get('http://localhost:5500/apiUser/refreshToken')
+                                    .then(({data}) => {
+                                        window.localStorage.setItem('token', data.accessToken);
+                                        axios.defaults.headers.common['Authorization'] = 'Bearer ' + data.accessToken;
+                                        originalRequest.headers['Authorization'] = 'Bearer ' + data.accessToken;
+                                        processQueue(null, data.accessToken);
+                                        resolve(axios(originalRequest));
+                                    })
+                                    .catch((err) => {
+                                        processQueue(err, null);
+                                        reject(err);
+                                    })
+                                    .finally(() => { isRefreshing = false })
+                            })
+                        }
+
+                        return Promise.reject(error);
+                    });
+                }
+                responseAxiosIntercep()
+            })
+
+            window.setCookie = function (name,value,days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days*24*60*60*1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+            }
+            window.getCookie = function(cname) {
+                const name = cname + '=';
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return '';
+            }
+            window.deleteCookie = function (name) {
+                document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            }
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
         <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
         <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

@@ -1,0 +1,63 @@
+<div class="createPro">
+</div>
+
+<script>
+    window.addEventListener("load", event => {
+        const divWrapContentForm = $('.createPro')
+        const btnSignOut = $('#btn-sign-out');
+        function getDataCreateProduct(form) {
+            const formData = new FormData(form);
+            const dataCreateProduct = Object.fromEntries(formData)
+            console.log(dataCreateProduct)
+            const callApiCreateProduct = async ()=>{
+                try{
+                    const {data} = await axios.post('http://localhost:5500/apiPro/createPro',
+                    {
+                        ...dataCreateProduct
+                    },
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    })
+                    window.location = data.url
+                }catch(err){
+                    console.log(err)
+                }
+            }
+            callApiCreateProduct()
+        }
+
+        const getFormCreateForm = async ()=>{
+            try{
+                const {data} = await axios.get('http://localhost:5500/apiPro/formCreatePro')
+                $(divWrapContentForm).html(data.htmlCreateProduct)
+                return 'successfull'
+            }catch(err){
+                if(err.response?.status === 403){
+                    const htmlError = `
+                        <span>${err.response.data.message}</span>
+                        <a class="nav-link" href="/authen/signIn">Sign In <span class="sr-only">(current)</span></a>
+                    `
+                    $(divWrapContentForm).html(htmlError)
+                }
+                if(err.response?.status === 500 || err.code === 'ERR_NETWORK'){
+                    $(btnSignOut).click()
+                }
+                return err
+            }
+        }
+
+        getFormCreateForm()
+        .then(res => {
+            $('#form-createPro').submit(function(event){
+                event.preventDefault();
+                
+                getDataCreateProduct(this)
+            })
+        })
+        .catch((err)=>{
+            console.log(err)
+        })          
+    });
+</script>

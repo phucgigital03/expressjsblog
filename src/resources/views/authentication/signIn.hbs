@@ -1,0 +1,57 @@
+<div class="content-signIn">
+    <p class="error-signIn"></p>
+    <form>
+        <div class="imgcontainer">
+            <img src="https://www.w3schools.com/howto/img_avatar2.png" alt="Avatar" class="avatar">
+        </div>
+
+        <div class="container-signIn">
+            <label for="uname"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="uname" id="username" required>
+
+            <label for="psw"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="psw" id="password" required>
+                
+            <button type="submit" class="signIn">Signin</button>
+            <label>
+            <input type="checkbox" checked="checked" name="remember"> Remember me
+            </label>
+        </div>
+
+        <div style="background-color:#f1f1f1">
+            <button type="button" class="cancelbtn">Cancel</button>
+            <span class="psw">Forgot <a href="#">password?</a></span>
+        </div>
+    </form>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded',()=>{
+        const btnSignIn = $('.signIn')
+        const errorMessageSignIn = $('.error-signIn')
+
+        btnSignIn.click(function(event){
+            event.preventDefault();
+
+            const callApiSignIn = async ()=>{
+                try{
+                    const { data } = await axios.post('http://localhost:5500/apiUser/signIn',{
+                        username: $('#username').val(),
+                        password: $('#password').val(),
+                    })
+                    const { accessToken,roles,url,username } = data
+                    window.localStorage.setItem('token',accessToken);
+                    window.localStorage.setItem('username',username);
+                    setCookie('roles',JSON.stringify(roles),1);
+                    window.location = url;
+                }catch(err){
+                    console.log(err)
+                    const message = err.response.data?.message
+                    const htmlMessageSignIn = `<span>${message}</span>`
+                    errorMessageSignIn.html(htmlMessageSignIn)
+                }
+            }
+            callApiSignIn()
+        })
+    })
+</script>

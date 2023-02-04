@@ -1,0 +1,233 @@
+<div class="content-order">
+    <h4 style="margin: 20px 0px;">Tong tien cua tat ca san pham : <span class="total-Price-All-Order"></span></h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">STT</th>
+                <th scope="col">Ma Product</th>
+                <th scope="col">Name Customer</th>
+                <th scope="col">Quatity</th>
+                <th scope="col">Price</th>
+                <th scope="col">Status</th>
+                <th scope="col">Detail</th>
+            </tr>
+        </thead>
+        <tbody class="list-order-addmin">
+            {{!-- render js --}}
+        </tbody>
+    </table>
+</div>
+
+
+{{!-- modal-detail-order --}}
+<div class="modal fade" id="showInfoOrder" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div style="max-width: 1000px;" class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Infomation Order</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12">
+                    <div class="detail-order">
+                        {{!-- render js --}}
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                    <ul class="list-order" style="padding: 0; margin-bottom: 20px">
+                        {{!-- render js --}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded',()=>{
+        const modelDetailOrder = $('.detail-order');
+        const modelListOrder = $('.list-order');
+        const wrapOrder = $('.list-order-addmin');
+
+        wrapOrder.click(function(event){
+            const idOrderFromBtn = $(event.target).closest('.btn-watch-detail-order').data("id")
+            const orderFromInputStatus = $(event.target).closest('.content-order--status')
+            if(idOrderFromBtn){
+                const callApiDetailOrder = async ()=>{
+                    try{
+                        const res = await axios.post('http://localhost:5500/apiOrder/detailOrder',{
+                            idOrder: idOrderFromBtn
+                        })
+                        const {infoCustomer,productOrders} = res.data
+                        const htmlListProduct = productOrders.map((product)=>{
+                            return `
+                                <li class="list-order-item">
+                                    <div class="wrap-img-product">
+                                        <img style="width: 100%;" src="http://localhost:5500/img/${product.image}" alt="${product.name}">
+                                    </div>
+                                    <div class="wrap-info-product">
+                                        <h5 class="wrap-info-product-title">${product.name}</h5>
+                                        <p style="margin: 0;">
+                                            <span>${product.color}</span> / <span>${product.size}</span>
+                                        </p>
+                                    </div>
+                                    <div class="wrap-price-product">
+                                        <p style="margin: 0;" class="wrap-price-product-pricePro">${product.pricePro.price}</p>
+                                        <p style="margin: 0;" class="wrap-price-product-Qty">many: ${product.quatity}</p>
+                                    </div>
+                                </li>
+                            `
+                        }).join('')
+                        const htmlDetailOrder = `
+                            <div class="container">
+                                <div class="row">
+                                    <div class="w-100"></div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <h5 class="detail-oreder-title-nameUser">Ten nguoi mua</h5>
+                                    </div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <p class="detail-oreder-nameUser">${infoCustomer[0].fullName}</p>
+                                    </div>
+                                    <div class="w-100"></div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <h5 class="detail-oreder-title-address">Dia chi</h5>
+                                    </div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <p class="detail-oreder-address">${infoCustomer[0].address}</p>
+                                    </div>
+                                    <div class="w-100"></div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <h5 class="detail-oreder-title-provinces">Tinh</h5>
+                                    </div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <p class="detail-oreder-provinces">${infoCustomer[0].provinces}</p>
+                                    </div>
+                                    <div class="w-100"></div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <h5 class="detail-oreder-title-district">Huyen</h5>
+                                    </div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <p class="detail-oreder-district">${infoCustomer[0].district}</p>
+                                    </div>
+                                    <div class="w-100"></div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <h5 class="detail-oreder-title-commune">Xa</h5>
+                                    </div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <p class="detail-oreder-commune">${infoCustomer[0].commune}</p>
+                                    </div>
+                                    <div class="w-100"></div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <h5 class="detail-oreder-title-phone">Phone</h5>
+                                    </div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <p class="detail-oreder-phone">${infoCustomer[0].phone}</p>
+                                    </div>
+                                    <div class="w-100"></div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <h5 class="detail-oreder-title-email">Email</h5>
+                                    </div>
+                                    <div style="border-style: solid;border-width: 0.5px;padding-top: 4px; padding-bottom: 4px" class="col">
+                                        <p class="detail-oreder-email">${infoCustomer[0].email}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                        modelDetailOrder.html(htmlDetailOrder);
+                        modelListOrder.html(htmlListProduct);
+                    }catch(error){
+                        console.log(error)
+                    }
+                }
+                callApiDetailOrder()
+            }
+            if(orderFromInputStatus.length){
+                const isCheckedInput = $(orderFromInputStatus).prop("checked")
+                const idOrder = $(orderFromInputStatus).data("id");
+                if(isCheckedInput){
+                    $(orderFromInputStatus).attr("checked",isCheckedInput)
+                }else{
+                    $(orderFromInputStatus).removeAttr("checked")
+                }
+                const callApiPatchOrder = async ()=>{
+                    try{
+                        const { data } = await axios.patch('http://localhost:5500/apiOrder/statusOrder',{
+                            idOrder: idOrder,
+                            isChecked: isCheckedInput
+                        })
+                        window.location.reload()
+                        console.log(data)
+                    }catch(error){
+                        console.log(error)
+                        if(!isCheckedInput){
+                            $(this).attr("checked",true);
+                            $(this).prop("checked",true);
+                        }else{
+                            $(this).removeAttr("checked")
+                            $(this).prop("checked",false);
+                        }
+                    }
+                }
+                callApiPatchOrder()
+            }
+        })
+    })
+
+    window.addEventListener('load',()=>{
+        const listOrderAddmin = $('.list-order-addmin');
+        const totalPriceAllOrder = $('.total-Price-All-Order');
+
+        const callApiGetOrder = async ()=>{
+            try{
+                let htmlOrders;
+                let checked;
+                const { data } = await axios.get('http://localhost:5500/apiOrder/managePrice')
+                const orderPaid = data.orderPaid;
+                if(orderPaid.length){
+                    htmlOrders = orderPaid.map((order,index) => {
+                        checked = order.status === 'open' ? 'checked' : ''
+                        return `
+                            <tr>
+                                <th scope="row">${index + 1}</th>
+                                <td>
+                                    <p class="content-order--namePro">${order._id}</p>
+                                </td>
+                                <td>
+                                    <p class="content-order--nameCus">${order.fullName}</p>
+                                </td>
+                                <td>
+                                    <span class="content-order--qty">${order.totalQty}</span>
+                                </td>
+                                <td>
+                                    <span class="content-order--price">${order.totalPrice}</span>
+                                </td>
+                                <td>
+                                    <input data-id="${order._id}" ${checked} style="width: 32px;height: 32px;" type="checkbox" name="status" class="content-order--status">
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-watch-detail-order" data-id="${order._id}" data-toggle="modal" data-target="#showInfoOrder">watch</button>
+                                </td>
+                            </tr>
+                        `
+                    })
+                }else{
+                    htmlOrders = '<p>Khong co order nao...</p>'
+                }
+                $(listOrderAddmin).html(htmlOrders)
+                $(totalPriceAllOrder).html(`<span>${data.totalPriceOfAllOrder}</span>`)
+            }catch(err){
+                console.log(err)
+            }
+        }
+        callApiGetOrder()
+    })
+</script>

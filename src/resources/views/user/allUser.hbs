@@ -1,0 +1,90 @@
+<div class="content-order">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">STT</th>
+                <th scope="col">Ma User</th>
+                <th scope="col">Name User</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Authurization</th>
+                <th scope="col">Function</th>
+            </tr>
+        </thead>
+        <tbody class="list-user-addmin">
+            {{!-- render js --}}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    window.addEventListener('load',function(){
+        const listUserAddmin = $('.list-user-addmin')
+
+        const callApiGetUser = async ()=>{
+            let authorizationHtml;
+            try{
+                const {data} = await axios.get('http://localhost:5500/apiUser/allUser')
+                const htmlUser = data.allUser.map((user,index)=>{
+                    if(user.roles.addmin){
+                        authorizationHtml = 'addmin'
+                    }else if(user.roles.editer){
+                        authorizationHtml = 'editor'
+                    }else {
+                        authorizationHtml = 'user'
+                    }
+                    return `
+                        <tr>
+                            <th scope="row">${index + 1}</th>
+                            <td>
+                                <p class="content-codeUser">${user._id}</p>
+                            </td>
+                            <td>
+                                <p class="content-nameUser">${user.username}</p>
+                            </td>
+                            <td>
+                                <span class="content-phone">${user.phoneNumber}</span>
+                            </td>
+                            <td>
+                                <span class="content-authurization">${authorizationHtml}</span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-update-user" data-id="${user._id}" >update</button>
+                                <button type="button" class="btn btn-primary btn-delete-user" data-id="${user._id}" >delete</button>
+                            </td>
+                        </tr>
+                    `
+                }).join('')
+                $(listUserAddmin).html(htmlUser)
+            }catch(err){
+                console.log(err)
+            }
+        }
+        callApiGetUser()
+
+        $(listUserAddmin).click(function(event){
+            const btnDele = event.target.closest('.btn-delete-user')
+            const btnUpdate = event.target.closest('.btn-update-user')
+
+            if(btnDele){
+                const idUser = $(btnDele).data("id")
+                const handleDeleteUser = async ()=>{
+                    try{
+                        const {data} = await axios.delete('http://localhost:5500/apiUser/delete',{
+                            data: {
+                                id: idUser
+                            }
+                        })
+                        window.location.reload()
+                    }catch(err){
+                        console.log(err)
+                    }
+                }
+                handleDeleteUser()
+            }
+
+            if(btnUpdate){
+
+            }
+        })
+    })
+</script>

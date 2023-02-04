@@ -8,10 +8,12 @@ const app = express()
 
 const router = require('./router/indexRouter')
 const db = require('./config/data/db')
-const sortMiddleWare = require('./app/middleWare/sortMiddleWare')
 const cors = require('cors')
 const corsOptions = require('./config/const/corsOption')
 const credentials = require('./app/middleWare/credentials')
+const verifyHtmlMiddleWare = require('./app/middleWare/verifyHtmlMiddleWare')
+const redisGetIp = require('./app/middleWare/redisGetIp')
+const helpers = require('./helper')
 
 // http request
 // app.use(morgan("combined"))
@@ -44,48 +46,25 @@ app.engine(
   hbs.engine({
     extname: '.hbs',
     partialsDir: path.join(__dirname,'resources/views/partials'),
-    helpers: {
-        isCondition(value){
-          return value
-        },
-        showStt(ind){
-          return ind + 1;
-        },
-        sortTable(filed,sort){
-          const icons = {
-            default: 'funnel-outline',
-            des: 'arrow-down-outline',
-            asc: 'arrow-up-outline'
-          }
-          const types = {
-            default: 'des',
-            des: 'asc',
-            asc: 'default'
-          }
-          const sortType = filed === sort.column ? sort.type : 'default'
-          const icon = icons[sortType]
-          const type = types[sortType]
-          return `
-              <a href="?_sort&column=${filed}&type=${type}" class="sort-name">
-                <span>
-                    <ion-icon name="${icon}"></ion-icon>
-                </span>
-              </a>
-          `
-        }
-    }
+    helpers: helpers
   })
 );
-app.set('view engine', 'hbs');
+app.set('view engine','hbs');
 app.set('views', path.join(__dirname, 'resources', 'views'));
 
+//verifyHtml
+app.use(verifyHtmlMiddleWare)
 
-// use MiddleWare
-app.use(sortMiddleWare)
+// redisGetIp
+app.use(redisGetIp)
 
 //router
 router(app)
 
+const PORT = process.env.PORT || 5500
+
 app.listen(5500,()=>{
     console.log('created server success')
-})
+});
+
+

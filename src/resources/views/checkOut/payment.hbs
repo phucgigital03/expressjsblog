@@ -1,0 +1,237 @@
+<div class="content-payment">
+    <div class="product-payment">
+        <h3 style="margin: 14px 10px; color: #007bff;">
+            Total All Product: {{totalAllPro productsChecked}}
+        </h3>
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">ORDER SUMMARY </th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price</th>
+                <th scope="col">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each productsChecked}}
+                    <tr>
+                        <th scope="row">
+                            <div style="display: flex;" class="wrap-img-descri">
+                                <div class="img-payment" data-id="{{this._id}}">
+                                    <img style="width: 100%;" src="http://localhost:5500/img/{{this.mainProductImage}}" alt="{{this.nameProduct}}">
+                                </div>
+                                <p class="des-payment">{{this.nameProduct}}</p>
+                            </div>
+                        </th>
+                        <td>{{this.qtyCurrent}}</td>
+                        <td>{{this.pricePro.price}}</td>
+                        <td>{{totalOnePro this.pricePro.price this.qtyCurrent}}</td>
+                    </tr>
+                {{else}}
+                    <p>khong co san pham nao de thanh toan</p>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="billing-payment">
+        <h3>billing address</h3>
+        <form>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input name="email" type="email" class="form-control" id="email">
+            </div>
+            <div class="form-group">
+                <label for="fullName">Full Name </label>
+                <input name="fullName" type="text" class="form-control" id="fullName">
+            </div>
+            <div class="form-group">
+                <label for="phone">NumberPhone</label>
+                <input name="phone" type="tel" class="form-control" id="phone" >
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input name="address" type="text" class="form-control" id="address" >
+            </div>
+            <div class="input-group mb-3 info-address">
+                <div class="wrap-seclect-address">
+                    <label for="provinces">Provinces</label>
+                    <select class="custom-select" id="provinces">
+                    </select>
+                </div>
+                <div class="wrap-seclect-address">
+                    <label for="district">District</label>
+                    <select class="custom-select" id="district" disabled>
+                        <option>-----</option>
+                    </select>
+                </div>
+                <div class="wrap-seclect-address">
+                    <label for="commune">Commune</label>
+                    <select class="custom-select" id="commune" disabled>
+                        <option>-----</option>
+                    </select>
+                </div>
+            </div>
+            <div class="method-payment">
+                <h3>Method Pay</h3>
+                <div style="padding-left: 20px;" class="form-check">
+                    <input class="form-check-input radio-payment" type="radio" name="payment" id="cod" value="cod" checked>
+                    <label class="form-check-label" for="cod">
+                        cod
+                    </label>
+                </div>
+                <div style="padding-left: 20px;" class="form-check">
+                    <input class="form-check-input radio-payment" type="radio" name="payment" id="card" value="card">
+                    <label class="form-check-label" for="card">
+                        card
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary payment-order">PAY AND PLACE ORDER</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded',()=>{
+        const btnPayment = $('.payment-order')
+        const radioPayments = $('.radio-payment')
+        const getIdPros = $('.img-payment')
+        const seclectProvinces = $('#provinces')
+        const seclectDistrict = $('#district')
+        const seclectCommune = $('#commune')
+
+        const handleCallApiProvinces = async()=>{
+            try{
+                const provinces = await axios.get('https://provinces.open-api.vn/api/?depth=2')
+                const htmlOptProvinces = provinces.data.map(province => {
+                    return `
+                        <option value="${province.code}">${province.name}</option>
+                    `
+                })
+                htmlOptProvinces.unshift(`<option value>--------</option>`)
+                $(seclectProvinces).html(htmlOptProvinces.join(''))
+            }catch(error){
+                console.log(error)
+            }
+        }
+        handleCallApiProvinces()
+        
+        radioPayments.change(function(){
+            const isTrue = $(this).prop('checked')
+            $(this).attr('checked',isTrue);
+
+            const radioNotCheckeds = $('.radio-payment:not(:checked)')
+            radioNotCheckeds.each((ind,radioNotChecked)=>{
+                $(radioNotChecked).removeAttr('checked',!isTrue)
+            })
+        })
+
+        btnPayment.click((event)=>{
+            event.preventDefault()
+            const email = $('#email').val()
+            const fullName = $('#fullName').val()
+            const phone = $('#phone').val()
+            const address = $('#address').val()
+            const provinces = $('#provinces option:selected').text()
+            const district = $('#district option:selected').text()
+            const commune = $('#commune option:selected').text()
+            const radioPaymentCheckedVal = $('.radio-payment:checked').val()
+            
+            const billingAddress = {
+                email,
+                fullName,
+                phone,
+                address,
+                provinces,
+                district,
+                commune,
+                payment: radioPaymentCheckedVal
+            }
+            const orderProduct = JSON.parse(getCookie('productsChecked'))
+
+            if(radioPaymentCheckedVal === 'card'){
+                const handleDataOrder = async()=>{
+                    try{
+                        const res = await axios.post('/checkout/card',{
+                            orderProduct: orderProduct,
+                            billingAddress: billingAddress
+                        })
+                        const { urlPayment } = res.data
+                        if(urlPayment){
+                            window.location = urlPayment
+                        }
+                    }catch(error){
+                        console.log(error)
+                    }
+                }
+                handleDataOrder()
+            }else{
+                const handleDataOrder = async()=>{
+                    try{
+                        const res = await axios.post('/checkout/cod',{
+                            orderProduct: orderProduct,
+                            billingAddress: billingAddress
+                        })
+                        const { url } = res.data
+                        if(url){
+                            deleteCookie('productsChecked')
+                            window.localStorage.removeItem('products')
+                            window.location = url
+                        }
+                    }catch(error){
+                        console.log(error)
+                    }
+                }
+                handleDataOrder()
+            }
+        })
+
+        seclectProvinces.blur(()=>{
+            const codeProvinces = Number($('#provinces option:selected').val())
+            if(codeProvinces){
+                $(seclectDistrict).removeAttr('disabled')
+                const handleCallApiDistrict = async()=>{
+                    try{
+                        const districtsRes = await axios.get(`https://provinces.open-api.vn/api/p/${codeProvinces}?depth=2`)
+                        const htmlDistrict = districtsRes.data.districts.map(district => {
+                            return `
+                                <option value="${district.code}">${district.name}</option>
+                            `
+                        })
+                        $(seclectDistrict).html(htmlDistrict.join(''))
+                    }catch(error){
+                        console.log(error)
+                    }
+                }
+                handleCallApiDistrict()
+            }else{
+                $(seclectDistrict).attr('disabled',true)
+                $(seclectDistrict).html(`<option value>--------</option>`)
+            }
+        })
+
+        seclectDistrict.blur(()=>{
+            const codeDistrict = Number($('#district option:selected').val())
+            if(codeDistrict){
+                $(seclectCommune).removeAttr('disabled')
+                const handleCallApiDistrict = async()=>{
+                    try{
+                        const communeRes = await axios.get(`https://provinces.open-api.vn/api/d/${codeDistrict}?depth=2`)
+                        const htmlCommune = communeRes.data.wards.map(commune => {
+                            return `
+                                <option value="${commune.code}">${commune.name}</option>
+                            `
+                        })
+                        $(seclectCommune).html(htmlCommune.join(''))
+                    }catch(error){
+                        console.log(error)
+                    }
+                }
+                handleCallApiDistrict()
+            }else{
+                $(seclectCommune).attr('disabled',true)
+                $(seclectCommune).html(`<option value>--------</option>`)
+            }
+        })
+    })
+</script>

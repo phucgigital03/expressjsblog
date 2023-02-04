@@ -1,0 +1,17 @@
+<div class="container-content">
+    <div class="row justify-content-md-start">
+        {{#each allProduct}}
+            <div class="col-12 col-lg-3 col-md-6 col-sm-6">
+                <a class="link-product" href="/products/{{this.nameProduct}}?color={{this.color}}&size={{this.size}}">
+                    <img class="img-pro" src="http://localhost:5500/img/{{this.mainProductImage}}" alt="{{this.nameProduct}}">
+                </a>
+                <div class="des">
+                    <h2 class="name-pro">{{this.nameProduct}}</h2>
+                    <p class="price">{{this.pricePro.price}}</p>
+                </div>
+            </div>
+        {{else}}
+            <p>chua co san pham dc dang</p>
+        {{/each}}
+    </div>
+</div>
