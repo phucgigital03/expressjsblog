@@ -4,6 +4,7 @@ const Order = require('../../model/Order');
 const ProductOrder = require('../../model/ProductOrder')
 const Inventory = require('../../model/Inventory')
 const mongooseObj = require('../../../util/mongoose')
+const { decrby } = require('../../../util/redis')
 
 class ordersController{
     static getSlugFromOrderPendding = async ()=>{
@@ -33,7 +34,7 @@ class ordersController{
 
     static updateInventory = async (slug,quatity)=>{
         try{
-            const resData = await Inventory.updateOne(
+            const resData = await Inventory.findOneAndUpdate(
             {
                 "reservations.slug": slug
             },
@@ -41,6 +42,7 @@ class ordersController{
                 $inc: {quatity: quatity},
                 $pull: {reservations: {slug: slug}}
             })
+            const id = resData.productId.toString()
             return 1;
         }catch(error){
             return 0;

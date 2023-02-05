@@ -44,6 +44,17 @@ const incrby = (key,numberIncr)=>{
     })
 }
 
+const decrby = (key,numberIncr)=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const result = await client.decrBy(key,numberIncr)
+            resolve(result)
+        }catch(err){
+            reject(err)
+        }
+    })
+}
+
 const setNx = (key,valueSet)=>{
     return new Promise(async(resolve,reject)=>{
         try{
@@ -72,5 +83,6 @@ module.exports = {
     getTtl,
     incrby,
     setNx,
-    exist
+    exist,
+    decrby
 }

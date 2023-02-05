@@ -117,8 +117,8 @@ class checkoutUserController{
         }
     }
 
-    // [post] /
-    show(req,res,next){
+    // [post] /checkout
+    checkout(req,res,next){
         const allPro = req.body.allPro
         if(!allPro){
             res.json({
