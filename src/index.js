@@ -14,7 +14,7 @@ const cors = require('cors')
 const corsOptions = require('./config/const/corsOption')
 const credentials = require('./app/middleWare/credentials')
 const verifyHtmlMiddleWare = require('./app/middleWare/verifyHtmlMiddleWare')
-const redisGetIp = require('./app/middleWare/redisGetIp')
+//const redisGetIp = require('./app/middleWare/redisGetIp')
 const helpers = require('./helper')
 
 // http request
@@ -58,7 +58,7 @@ app.set('views', path.join(__dirname, 'resources', 'views'));
 app.use(verifyHtmlMiddleWare)
 
 // redisGetIp
-app.use(redisGetIp)
+//app.use(redisGetIp)
 
 //router
 router(app)
