@@ -4,6 +4,8 @@ const hbs = require('express-handlebars')
 const path = require('path')
 const methodOverride = require('method-override')
 const cookieParser = require('cookie-parser')
+const dotenv = require('dotenv');
+dotenv.config()
 const app = express()
 
 const router = require('./router/indexRouter')
@@ -63,8 +65,8 @@ router(app)
 
 const PORT = process.env.PORT || 5500
 
-app.listen(5500,()=>{
-    console.log('created server success')
+app.listen(PORT,()=>{
+    console.log(`created server success ${PORT}`)
 });
 
 
