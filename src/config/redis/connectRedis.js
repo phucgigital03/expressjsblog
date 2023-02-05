@@ -1,9 +1,6 @@
 const redis = require('redis')
 
-const client = redis.createClient({
-    host: 'http://localhost:5500',
-    port: 6379
-})
+const client = redis.createClient()
 
 const connectRedis = async()=>{
     try{

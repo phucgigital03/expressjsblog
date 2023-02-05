@@ -44,10 +44,21 @@ const incrby = (key,numberIncr)=>{
     })
 }
 
-const setNx = (key,vualueSet)=>{
+const setNx = (key,valueSet)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.setNX(key,vualueSet)
+            const result = await client.set(key,valueSet)
+            resolve(result)
+        }catch(err){
+            reject(err)
+        }
+    })
+}
+
+const exist = (key)=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const result = await client.exists(key)
             resolve(result)
         }catch(err){
             reject(err)
@@ -59,6 +70,7 @@ module.exports = {
     incr,
     expire,
     getTtl,
-    incr,
-    setNx
+    incrby,
+    setNx,
+    exist
 }
