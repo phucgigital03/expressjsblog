@@ -9,7 +9,7 @@ const connectRedis = async()=>{
         console.log("redis connect error")
     }
 }
-connectRedis()
+//connectRedis()
 
 client.on('connect',()=>{
     console.log('redis connected')
