@@ -18,6 +18,7 @@ const configURL = require('./app/middleWare/configURL')
 //const redisGetIp = require('./app/middleWare/redisGetIp')
 const helpers = require('./helper')
 const { set,setnx,get,dele,allKey } = require('./util/redis')
+const getUploadFile = require('./app/middleWare/uploadFile')
 
 // http request
 // app.use(morgan("combined"))
@@ -64,6 +65,11 @@ app.use(verifyHtmlMiddleWare)
 
 // configURL
 app.use(configURL)
+
+// uploadFile
+const upload = getUploadFile(__dirname);
+const cpUpload = upload.fields([{ name: 'mainProductImage', maxCount: 1 }, { name: 'productsImage', maxCount: 2 }])
+app.use(cpUpload)
 
 //router
 router(app)
