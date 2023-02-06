@@ -7,6 +7,29 @@ const Otp = require('../../model/Otp');
 const { testTwilio } = require('../../middleWare/sendOtp')
 
 class userController{
+    async testDb(req,res,next){
+        try{
+            const newUser = {
+                username: 'phuc 1234',
+                phoneNumber: 17389484,
+                password: 'njfbv',
+                roles: {
+                    user: 2001
+                },
+                refreshToken: '',
+            }
+            const userSave = new User(newUser)
+            await userSave.save()
+            res.status(201).json({
+                status: 200,
+                message: 'create user succesfull',
+            })
+            return;
+        }catch(err){
+            next(err)
+        }
+    }
+
     // [get]: /allUser
     home(req,res,next){
         const getUserFromDB = async ()=>{
@@ -58,7 +81,7 @@ class userController{
                         httpOnly: true
                     })
                     res.status(201).json({
-                        url: 'http://localhost:5500/apiUser/formOtp'
+                        url: `${process.env.LOCALHOST}/apiUser/formOtp`
                     })
                     return;
                 }else{
@@ -136,6 +159,7 @@ class userController{
                     status: 200,
                     message: 'create user succesfull',
                 })
+                return;
             }catch(error){
                 next(error)
             }
@@ -193,7 +217,7 @@ class userController{
                         username: user.username,
                         accessToken: accessToken,
                         roles: roles,
-                        url: 'http://localhost:5500/products/allItem'
+                        url: `${process.env.LOCALHOST}/products/allItem`
                     })
                 }
 

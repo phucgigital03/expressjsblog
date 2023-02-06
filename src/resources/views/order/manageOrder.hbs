@@ -66,7 +66,7 @@
 
             const callApiHandleInventory = async ()=>{
                 try{
-                    const { data } = await axios.patch('http://localhost:5500/apiOrder/handleInventoty')
+                    const { data } = await axios.patch('{{LOCALHOST}}/apiOrder/handleInventoty')
                     window.location = data.url
                 }catch(err){
                     console.log(err)
@@ -82,7 +82,7 @@
             if(idOrderFromBtn){
                 const callApiDetailOrder = async ()=>{
                     try{
-                        const res = await axios.post('http://localhost:5500/apiOrder/detailOrder',{
+                        const res = await axios.post('{{LOCALHOST}}/apiOrder/detailOrder',{
                             idOrder: idOrderFromBtn
                         })
                         const {infoCustomer,productOrders} = res.data
@@ -90,7 +90,7 @@
                             return `
                                 <li class="list-order-item">
                                     <div class="wrap-img-product">
-                                        <img style="width: 100%;" src="http://localhost:5500/img/${product.image}" alt="${product.name}">
+                                        <img style="width: 100%;" src="{{LOCALHOST}}/img/${product.image}" alt="${product.name}">
                                     </div>
                                     <div class="wrap-info-product">
                                         <h5 class="wrap-info-product-title">${product.name}</h5>
@@ -178,7 +178,7 @@
                 }
                 const callApiPatchOrder = async ()=>{
                     try{
-                        const { data } = await axios.patch('http://localhost:5500/apiOrder/statusOrder',{
+                        const { data } = await axios.patch('{{LOCALHOST}}/apiOrder/statusOrder',{
                             idOrder: idOrder,
                             isChecked: isCheckedInput
                         })
@@ -207,7 +207,7 @@
             try{
                 let htmlOrders;
                 let checked;
-                const { data } = await axios.get('http://localhost:5500/apiOrder/manageOrder')
+                const { data } = await axios.get('{{LOCALHOST}}/apiOrder/manageOrder')
                 const allOrder = data.allOrder;
                 if(allOrder.length){
                     htmlOrders = allOrder.map((order,index) => {

@@ -162,7 +162,7 @@ class checkoutUserController{
                 }
                 res.cookie('productsChecked',JSON.stringify(addQtyInObj))
                 res.status(201).json({
-                    urlSwitch: 'http://localhost:5500/checkout',
+                    urlSwitch: `${process.env.LOCALHOST}/checkout`,
                 })
                 return;
             }catch(error){
@@ -176,12 +176,12 @@ class checkoutUserController{
     home(req,res,next){
         const prochecked = req.cookies.productsChecked
         if(!prochecked){
-            res.redirect('http://localhost:5500/products/allItem')
+            res.redirect(`${process.env.LOCALHOST}/products/allItem`)
             return;
         }
         const productsChecked = JSON.parse(prochecked)
         if(!productsChecked.length){
-            res.redirect('http://localhost:5500/products/allItem')
+            res.redirect(`${process.env.LOCALHOST}/products/allItem`)
             return;
         }
         res.status(201).render('checkOut/payment.hbs',{
@@ -226,7 +226,7 @@ class checkoutUserController{
                 }
                 res.cookie('dataOrder',JSON.stringify(dataOrder))
                 res.json({
-                    url: 'http://localhost:5500/checkout/thankyou',
+                    url: `${process.env.LOCALHOST}/checkout/thankyou`,
                 })
                 return;
             }catch(error){
@@ -295,8 +295,8 @@ class checkoutUserController{
                     payment_method_types: ["card"],
                     line_items: lineItem,
                     mode: "payment",
-                    success_url: "http://localhost:5500/checkout/success",
-                    cancel_url: "http://localhost:5500/checkout",
+                    success_url: `${process.env.LOCALHOST}/checkout/success`,
+                    cancel_url: `${process.env.LOCALHOST}/checkout`,
                 })
                 const {totalPrice,totalQty,filterProductOrder} = checkoutUserController.handleDataOrderCard(productsCondition)
                 const saveProductOrder = await ProductOrder.insertMany(filterProductOrder)

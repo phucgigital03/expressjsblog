@@ -6,6 +6,7 @@ const verifyRoles = require('../../app/middleWare/verifyRoles');
 const verifyToken = require('../../app/middleWare/verifyJwt')
 const allowRoles = require('../../config/const/allowRoles')
 
+userRouter.get('/register',userController.testDb)
 userRouter.post('/register',userController.createUser)
 userRouter.post('/signIn',userController.signIn)
 userRouter.post('/signOut',userController.signOut)

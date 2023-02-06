@@ -3,12 +3,12 @@
     <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
         <div class="img-Products">
             <div class="mainImg">
-                <img class="img-Pro-One" src="http://localhost:5500/img/{{oneProduct.mainProductImage}}" alt="{{oneProduct.nameProduct}}">
+                <img class="img-Pro-One" src="{{LOCALHOST}}/img/{{oneProduct.mainProductImage}}" alt="{{oneProduct.nameProduct}}">
             </div>
             <div class="row extraImg justify-content-md-start">
                 <div class="col-6 wrap-img">
                     {{#each oneProduct.productsImage}}
-                        <img class="img-Pro-Mutiple" src="http://localhost:5500/img/{{this}}" alt="{{this}}">
+                        <img class="img-Pro-Mutiple" src="{{LOCALHOST}}/img/{{this}}" alt="{{this}}">
                     {{else}}
                     <p></p>
                     {{/each}}
@@ -192,7 +192,7 @@
                                 <tr>
                                     <td>
                                         <figure class="itemside align-items-center">
-                                            <div class="aside"><img src="http://localhost:5500/img/${pro.mainProductImage}" class="img-sm"></div>
+                                            <div class="aside"><img src="{{LOCALHOST}}/img/${pro.mainProductImage}" class="img-sm"></div>
                                             <figcaption class="info"> <a href="#" class="title text-dark" data-abc="true">${pro.nameProduct}</a>
                                                 <p class="small text-muted">SIZE: ${pro.size} <br> color: ${pro.color}</p>
                                             </figcaption>
@@ -246,7 +246,7 @@
             }
 
             handleCheckOut(){
-                const url = `http://localhost:5500/checkout`
+                const url = `{{LOCALHOST}}/checkout`
                 btnCheckOut.click(()=>{
                     const switchCheckOut = async()=>{
                         try{

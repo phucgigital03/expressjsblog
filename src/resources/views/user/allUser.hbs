@@ -23,7 +23,7 @@
         const callApiGetUser = async ()=>{
             let authorizationHtml;
             try{
-                const {data} = await axios.get('http://localhost:5500/apiUser/allUser')
+                const {data} = await axios.get('{{LOCALHOST}}/apiUser/allUser')
                 const htmlUser = data.allUser.map((user,index)=>{
                     if(user.roles.addmin){
                         authorizationHtml = 'addmin'
@@ -69,7 +69,7 @@
                 const idUser = $(btnDele).data("id")
                 const handleDeleteUser = async ()=>{
                     try{
-                        const {data} = await axios.delete('http://localhost:5500/apiUser/delete',{
+                        const {data} = await axios.delete('{{LOCALHOST}}/apiUser/delete',{
                             data: {
                                 id: idUser
                             }

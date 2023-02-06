@@ -261,7 +261,7 @@ class ordersController{
 
                 res.status(201).json({
                     message: 'successfull',
-                    url: 'http://localhost:5500/client/orderUser'
+                    url: `${process.env.LOCALHOST}/client/orderUser`
                 })
                 return;
             }catch(error){

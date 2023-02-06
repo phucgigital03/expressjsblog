@@ -42,7 +42,7 @@
             
             const callAPiCreateUser = async ()=>{
                 try{
-                    const { data } = await axios.post('http://localhost:5500/apiUser/register',{
+                    const { data } = await axios.post('{{LOCALHOST}}/apiUser/register',{
                         username: $('#username').val(),
                         phoneNumber: $('#phoneNumber').val(),
                         password: $('#password').val()

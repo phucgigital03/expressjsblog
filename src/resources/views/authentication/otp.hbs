@@ -28,7 +28,7 @@
             const otps = $("input[name='otp-create-user[]']").map(function(){return $(this).val();}).get().join('');
             const callApiVerifyOtp = async ()=>{
                 try{
-                    const { data } = await axios.post('http://localhost:5500/apiUser/verifyOtp',{
+                    const { data } = await axios.post('{{LOCALHOST}}/apiUser/verifyOtp',{
                         otp: otps
                     })
                     console.log(data)

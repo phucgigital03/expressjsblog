@@ -1,6 +1,7 @@
 const allowOrigins = [ 
     'https://myapi.com',
-    'http://localhost:5500',
+    `${process.env.LOCALHOST}`,
     'http://localhost:3000',
+    'https://expressjsblog.onrender.com',
 ]
 module.exports = allowOrigins

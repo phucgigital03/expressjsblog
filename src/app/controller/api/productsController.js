@@ -154,7 +154,7 @@ class ProductsController{
                 await inventory.save()
                 return res.status(201).json({
                     message: 'successfull',
-                    url: 'http://localhost:5500/products/allItem'
+                    url: `${process.env.LOCALHOST}/products/allItem`
                 })
             }catch(err){
                 next(err)
