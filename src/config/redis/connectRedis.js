@@ -1,20 +1,17 @@
-const redis = require('redis')
+const Redis = require('ioredis')
 
-const client = redis.createClient()
+const renderRedis = new Redis({
+    username: process.env.USERNAME_REDIS, 
+    host: process.env.HOST_REDIS,             
+    password: process.env.PASSWORD_REDIS,    
+    port: process.env.PORT_REDIS, 
+    tls: process.env.TLS_REDIS,
+})
 
-const connectRedis = async()=>{
-    try{
-        await client.connect()
-    }catch(err){
-        console.log("redis connect error")
-    }
-}
-//connectRedis()
-
-client.on('connect',()=>{
-    console.log('redis connected')
+renderRedis.on('connect',()=>{
+    console.log('redis connected success')
 })
 
 module.exports = {
-    client,
+    renderRedis,
 }

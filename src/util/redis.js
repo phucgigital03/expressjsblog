@@ -1,9 +1,9 @@
-const { client } = require('../config/redis/connectRedis')
+const { renderRedis } = require('../config/redis/connectRedis')
 
 const incr = (key)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.incr(key)
+            const result = await renderRedis.incr(key)
             resolve(result)
         }catch(err){
             reject(err)
@@ -14,7 +14,7 @@ const incr = (key)=>{
 const expire = (key,valueTime)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.expire(key,valueTime)
+            const result = await renderRedis.expire(key,valueTime)
             resolve(result)
         }catch(err){
             reject(err)
@@ -25,7 +25,7 @@ const expire = (key,valueTime)=>{
 const getTtl = (key)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.ttl(key)
+            const result = await renderRedis.ttl(key)
             resolve(result)
         }catch(err){
             reject(err)
@@ -36,7 +36,7 @@ const getTtl = (key)=>{
 const incrby = (key,numberIncr)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.incrBy(key,numberIncr)
+            const result = await renderRedis.incrby(key,numberIncr)
             resolve(result)
         }catch(err){
             reject(err)
@@ -47,7 +47,7 @@ const incrby = (key,numberIncr)=>{
 const decrby = (key,numberIncr)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.decrBy(key,numberIncr)
+            const result = await renderRedis.decrby(key,numberIncr)
             resolve(result)
         }catch(err){
             reject(err)
@@ -55,10 +55,54 @@ const decrby = (key,numberIncr)=>{
     })
 }
 
-const setNx = (key,valueSet)=>{
+const set = (key,valueSet)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.set(key,valueSet)
+            const result = await renderRedis.set(key,valueSet)
+            resolve(result)
+        }catch(err){
+            reject(err)
+        }
+    })
+}
+
+const setnx = (key,valueSet)=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const result = await renderRedis.setnx(key,valueSet)
+            resolve(result)
+        }catch(err){
+            reject(err)
+        }
+    })
+}
+
+const get = (key)=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const result = await renderRedis.get(key)
+            resolve(result)
+        }catch(err){
+            reject(err)
+        }
+    })
+}
+
+const dele = (key)=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const result = await renderRedis.del(key)
+            resolve(result)
+        }catch(err){
+            reject(err)
+        }
+    })
+}
+
+const allKey = ()=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const result = await renderRedis.keys('*')
             resolve(result)
         }catch(err){
             reject(err)
@@ -69,7 +113,7 @@ const setNx = (key,valueSet)=>{
 const exist = (key)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const result = await client.exists(key)
+            const result = await renderRedis.exists(key)
             resolve(result)
         }catch(err){
             reject(err)
@@ -82,7 +126,11 @@ module.exports = {
     expire,
     getTtl,
     incrby,
-    setNx,
+    set,
+    setnx,
+    get,
+    dele,
     exist,
-    decrby
+    decrby,
+    allKey
 }

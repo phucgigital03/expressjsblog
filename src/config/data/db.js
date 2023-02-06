@@ -6,9 +6,9 @@ const connect = async ()=>{
             useNewUrlParser: true,
             useUnifiedTopology: true,
         })
-        console.log('connect sucess')
+        console.log('DB connect sucess')
     }catch(err){
-        console.log('connect fail')
+        console.log('DB connect fail')
     }
 }
 

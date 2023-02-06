@@ -16,6 +16,7 @@ const credentials = require('./app/middleWare/credentials')
 const verifyHtmlMiddleWare = require('./app/middleWare/verifyHtmlMiddleWare')
 //const redisGetIp = require('./app/middleWare/redisGetIp')
 const helpers = require('./helper')
+const { set,setnx,get,dele,allKey } = require('./util/redis')
 
 // http request
 // app.use(morgan("combined"))
@@ -68,5 +69,3 @@ const PORT = process.env.PORT || 5500
 app.listen(PORT,()=>{
     console.log(`created server success ${PORT}`)
 });
-
-
