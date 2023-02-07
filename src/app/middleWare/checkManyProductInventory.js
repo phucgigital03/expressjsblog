@@ -1,4 +1,4 @@
-const {setNx,incrby,exist} = require('../../util/redis')
+const { setnx,incrby,exist } = require('../../util/redis')
 const Product = require('.././model/Product')
 
 const checkProductWithRedis = async (key,slMua,slInventory,nameProduct)=>{
@@ -6,7 +6,7 @@ const checkProductWithRedis = async (key,slMua,slInventory,nameProduct)=>{
         let slBanra;
         const isCheck = await exist(key)
         if(!isCheck){
-            await setNx(key,0)
+            await setnx(key,0)
         }
         slBanra = await incrby(key,slMua)
         if(slBanra > slInventory){
@@ -71,6 +71,7 @@ const checkManyProductInventory = async (req,res,next)=>{
             })
             return;
         }else{
+            req.idPros = idPros
             next()
         }
     }catch(error){

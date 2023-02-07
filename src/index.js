@@ -79,3 +79,14 @@ const PORT = process.env.PORT || 5500
 app.listen(PORT,()=>{
     console.log(`created server success ${PORT}`)
 });
+
+const testRedis = async()=>{
+  try{
+    const resData = await allKey()
+    console.log(resData)
+  }catch(err){
+    console.log(err)
+  }
+}
+
+testRedis()

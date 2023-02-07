@@ -221,7 +221,7 @@ class ordersController{
                         return;
                     }else if(!dataUpdateInventory.length){
                         res.status(409).json({
-                            message: "no content"
+                            message: "no product pendding"
                         })
                         return;
                     }

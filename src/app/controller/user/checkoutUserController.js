@@ -120,17 +120,7 @@ class checkoutUserController{
     // [post] /checkout
     checkout(req,res,next){
         const allPro = req.body.allPro
-        if(!allPro){
-            res.json({
-                status: 401,
-                message: "ko co du lieu"
-            })
-            return
-        }
-        const idPros = allPro.map((pro)=>{
-            return pro._id
-        })
-        
+        const idPros = req.idPros
         // check mutiple request when have one product (chua lam)
         const getPros = async ()=>{
             try{
